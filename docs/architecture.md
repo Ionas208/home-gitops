@@ -224,6 +224,9 @@ Component directories under `platform/` hold their chart values at the root; eac
 subdirectory is one sync unit named for its purpose (`cert-manager/internal`,
 `cert-manager/acme`, `external-secrets/store`).
 
+Workloads are separate from infrastructure: manifests live under `apps/<name>/` and
+their Applications under `clusters/home/apps/`. `portfolio` is the first one.
+
 The root Application is applied once and is not self-managed. It creates the real
 AppProjects and child Applications. Child Applications carry sync-wave annotations
 so ordering is explicit: MetalLB, then CRDs, then Traefik, then consumers.

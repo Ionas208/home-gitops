@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/Ionas208/home-gitops.git
     targetRevision: main
-    path: platform/portfolio
+    path: apps/portfolio
   destination:
     server: https://kubernetes.default.svc
     namespace: public
