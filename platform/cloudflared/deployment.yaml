@@ -51,8 +51,11 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
+            # cloudflared has no /live endpoint; /metrics is always served once
+            # the metrics server is up. Probing /live returns 404 and kills the
+            # container on a loop.
             httpGet:
-              path: /live
+              path: /metrics
               port: metrics
             initialDelaySeconds: 10
             periodSeconds: 20
