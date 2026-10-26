@@ -1,0 +1,16 @@
+.idea/
+.DS_Store
+
+# Never commit local overrides or secrets
+*.local.yaml
+*.secret.yaml
+.env
+.env.*
+kubeconfig*
+*.kubeconfig
+*.agekey
+*.key
+*.pem
+
+# Local validation output
+.hack/
