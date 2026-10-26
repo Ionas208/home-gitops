@@ -1,7 +1,9 @@
 # ADR-0003: In-cluster LAN DNS with CoreDNS
 
-- Status: accepted
+- Status: superseded by ADR-0010
 - Date: 2026-10-26
+- Superseded: 2026-10-26, before the in-cluster resolver became the LAN default. The
+  cluster must not be the LAN's only resolver; see ADR-0010.
 
 ## Context
 

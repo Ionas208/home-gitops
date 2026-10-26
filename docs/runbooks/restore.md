@@ -66,7 +66,7 @@ Argo recreates the rest from Git.
 - [ ] Argo CD Synced
 - [ ] BSM ClusterSecretStore Valid
 - [ ] cert-manager Certificate Ready
-- [ ] `lan-dns` answering on `<DNS_VIP>`
+- [ ] `*.home.jonasseidl.com` resolves through the router
 - [ ] Traefik reachable on `<TRAEFIK_VIP>`
 - [ ] public tunnel healthy
 - [ ] application smoke tests

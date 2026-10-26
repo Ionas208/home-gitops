@@ -90,7 +90,6 @@ This is the only manual secret. Rotate it by updating the Secret and the BSM mac
 ```bash
 kubectl -n external-secrets get clustersecretstore
 kubectl -n cert-manager get clusterissuer
-kubectl -n dns get svc lan-dns
 kubectl -n traefik get svc traefik
 kubectl -n cloudflared get pods
 kubectl -n tailscale get pods
@@ -100,20 +99,25 @@ Expected:
 
 - `bitwarden` ClusterSecretStore is `Valid`
 - `letsencrypt-prod` is `Ready`
-- `lan-dns` has `<DNS_VIP>`
 - Traefik has `<TRAEFIK_VIP>`
 - cloudflared and Tailscale pods are running
 
-## 6. DNS cutover
+## 6. DNS
 
-1. Confirm `lan-dns` answers from another LAN host:
+There is no LAN resolver in the cluster. Internal names are public DNS-only records.
+
+1. Confirm public resolution:
    ```bash
-   dig @192.0.2.53 argocd.home.jonasseidl.com
+   dig @1.1.1.1 argocd.home.jonasseidl.com   # <TRAEFIK_VIP>
    ```
-2. Point FRITZ!Box DHCP primary DNS at `<DNS_VIP>`.
-3. Keep a secondary public/FRITZ!Box DNS for fallback.
-4. Verify `*.home.jonasseidl.com` resolves to `<TRAEFIK_VIP>`.
-5. Do not point Proxmox or Talos host DNS at `lan-dns`.
+2. Confirm the FRITZ!Box passes it through. `home.jonasseidl.com` must be listed
+   under Netzwerk → Netzwerkeinstellungen → DNS-Rebind-Schutz as a hostname
+   exception, or the router drops the private-address answer:
+   ```bash
+   dig @<ROUTER_IP> argocd.home.jonasseidl.com
+   ```
+3. Leave "Lokaler DNS-Server" empty. Clients use the router.
+4. Do not point Proxmox or Talos host DNS at anything cluster-owned.
 
 ## 7. Certificates and ingress
 

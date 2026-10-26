@@ -1,5 +1,8 @@
 # Home Lab Master Plan
 
+> Historical planning document. The implemented design lives in
+> `docs/architecture.md` and `docs/decisions/`; where they disagree, those win.
+
 Status: **Phase 0 - documentation only**  
 Cluster name: `home`  
 Domain: `jonasseidl.com`  

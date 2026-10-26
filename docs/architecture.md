@@ -20,13 +20,14 @@
 LAN clients
     |
     v
-lan-dns CoreDNS :53  <DNS_VIP>
+FRITZ!Box :53  (no custom resolver)
     |
-    +--> *.home.jonasseidl.com --> Traefik :443 (websecure)
-    |                                  |
-    |                                  +--> internal UIs (Argo, Grafana...)
+    +--> home.jonasseidl.com / *.home.jonasseidl.com
+    |        public DNS-only record --> Traefik :443 (websecure)
+    |                                      |
+    |                                      +--> internal UIs (Argo, Grafana...)
     |
-    +--> public names --> upstream resolvers (Internet)
+    +--> everything else --> provider resolvers (Internet)
 ```
 
 The cluster is a single Kubernetes control plane plus two workers on one Proxmox host.
@@ -43,7 +44,6 @@ All addresses below are placeholders. Replace them with the real LAN plan.
 | `talos-worker-1` | worker                    | `192.0.2.11`  |                           |
 | `talos-worker-2` | worker                    | `192.0.2.12`  |                           |
 | Traefik          | MetalLB VIP               | `192.0.2.50`  | `web` and `websecure`     |
-| `lan-dns`        | MetalLB VIP               | `192.0.2.53`  | UDP/TCP 53                |
 | QNAP TS-433      | NAS                       | `192.0.2.254` | NFS, backups, snapshots   |
 
 Reserved ranges:
@@ -285,7 +285,7 @@ admin access, or a failed rebuild. The offsite copy is mandatory.
 | Control-plane VM down  | Kubernetes API unavailable; running pods may continue | Restore VM/etcd or rebuild                      |
 | Proxmox host down      | Whole cluster down                                    | Restore host; VMs restart                       |
 | QNAP down              | NFS PVCs unavailable; backups fail                    | Restore QNAP; local-path apps continue          |
-| `lan-dns` down         | Internal names fail; internet via secondary DNS       | Fix CoreDNS; use IPs                            |
+| Cloudflare DNS down    | All name resolution fails, internal and public        | Wait for Cloudflare; use IPs meanwhile          |
 | Cloudflare tunnel down | Public services unavailable                           | Restart cloudflared; internal access unaffected |
 | Argo CD down           | No reconciliation; workloads keep running             | Bootstrap/recovery runbook                      |
 | Certificate expiry     | Internal TLS breaks                                   | cert-manager; manual reissue                    |

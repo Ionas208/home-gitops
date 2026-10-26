@@ -106,7 +106,6 @@ replaced before deployment.
 | External Secrets Operator | REPLACE_ME | pin Helm chart                |
 | MetalLB                   | REPLACE_ME | pin Helm chart                |
 | cloudflared               | REPLACE_ME | pin image                     |
-| CoreDNS (lan-dns)         | 1.11.1     | update before deploy if newer |
 | csi-driver-nfs            | REPLACE_ME | pin Helm chart                |
 | local-path-provisioner    | REPLACE_ME | pin Helm chart                |
 | Tailscale operator        | REPLACE_ME | pin Helm chart                |
