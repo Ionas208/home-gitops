@@ -29,7 +29,10 @@ spec:
                     app.kubernetes.io/name: portfolio
       containers:
         - name: nginx
-          image: nginxinc/nginx-unprivileged:1.31.7-alpine
+          # Chainguard's Wolfi image: no shell, no package manager, rebuilt
+          # continuously, signed. Pinned by digest because the public registry
+          # exposes only the "latest" tag.
+          image: cgr.dev/chainguard/nginx@sha256:9aa6c46648f17b2835d009fd4338b38591b2396670a07270ee19b532f83dbbb5
           ports:
             - name: http
               containerPort: 8080
