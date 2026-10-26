@@ -1,0 +1,24 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-ca
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-6"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Ionas208/home-gitops.git
+    targetRevision: main
+    path: platform/cert-manager-ca
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: external-secrets
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      # The Certificate for the SDK server must live in the namespace the
+      # chart will later use, so this Application creates it first.
+      - CreateNamespace=true

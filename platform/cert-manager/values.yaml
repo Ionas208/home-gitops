@@ -1,0 +1,20 @@
+# CRDs ship as templates in this chart, not as a crds/ directory, so Argo
+# renders and installs them. No separate CRD Application is needed.
+crds:
+  enabled: true
+  # Keep the CRDs if the Application is removed, so deleting cert-manager
+  # does not cascade into every Certificate in the cluster.
+  keep: true
+
+# The startup check is a Helm hook Job. Argo applies it as a normal resource
+# and Jobs are immutable, so it breaks on every chart bump. Argo's own health
+# gating covers the same ground.
+startupapicheck:
+  enabled: false
+
+# Let's Encrypt validates from outside the LAN. Pin public resolvers so a
+# future split-horizon CoreDNS can never make cert-manager's self-check
+# disagree with what the ACME server sees.
+extraArgs:
+  - --dns01-recursive-nameservers=1.1.1.1:53,9.9.9.9:53
+  - --dns01-recursive-nameservers-only

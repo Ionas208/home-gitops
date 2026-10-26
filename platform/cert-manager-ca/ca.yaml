@@ -1,0 +1,70 @@
+# Internal CA for the Bitwarden SDK server that External Secrets talks to.
+# The SDK server requires TLS but the chart only mounts a pre-made Secret, so
+# cert-manager signs one. Everything here is self-contained: no external
+# dependency, which is why this runs before External Secrets is installed.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: selfsigned
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-sdk-ca
+  namespace: external-secrets
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  isCA: true
+  commonName: bitwarden-sdk-ca
+  secretName: bitwarden-sdk-ca
+  duration: 87600h
+  renewBefore: 8760h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  issuerRef:
+    kind: ClusterIssuer
+    name: selfsigned
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: bitwarden-sdk-ca
+  namespace: external-secrets
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  ca:
+    secretName: bitwarden-sdk-ca
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: bitwarden-sdk-server
+  namespace: external-secrets
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  # Secret name is fixed by the external-secrets chart.
+  secretName: bitwarden-tls-certs
+  duration: 8760h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  dnsNames:
+    - bitwarden-sdk-server
+    - bitwarden-sdk-server.external-secrets
+    - bitwarden-sdk-server.external-secrets.svc
+    - bitwarden-sdk-server.external-secrets.svc.cluster.local
+  usages:
+    - server auth
+    - digital signature
+  issuerRef:
+    kind: Issuer
+    name: bitwarden-sdk-ca
