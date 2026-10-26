@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cert-manager-ca
+  name: cert-manager-internal
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "-6"
@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/Ionas208/home-gitops.git
     targetRevision: main
-    path: platform/cert-manager-ca
+    path: platform/cert-manager/internal
   destination:
     server: https://kubernetes.default.svc
     namespace: external-secrets
