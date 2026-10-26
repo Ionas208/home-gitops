@@ -1,0 +1,27 @@
+# Wildcard plus the bare apex. Lives in the traefik namespace because a
+# Gateway can only reference Secrets from its own namespace without a
+# ReferenceGrant, and the Gateway lives there.
+#
+# Starts on staging: a failed order there costs nothing, while production has
+# a 5-per-week duplicate limit for this exact name set.
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: wildcard-home
+  namespace: traefik
+spec:
+  secretName: wildcard-home-jonasseidl-com-tls
+  dnsNames:
+    - home.jonasseidl.com
+    - "*.home.jonasseidl.com"
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-staging
+  duration: 2160h
+  renewBefore: 720h
+  privateKey:
+    algorithm: ECDSA
+    size: 256
+  usages:
+    - server auth
+    - digital signature

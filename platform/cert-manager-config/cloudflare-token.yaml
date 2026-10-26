@@ -1,0 +1,19 @@
+# The Cloudflare token lives in Bitwarden, never in Git. ESO rewrites this
+# Secret hourly, so rotating the token in Bitwarden needs no cluster change.
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: cloudflare-api-token
+  namespace: cert-manager
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden
+    kind: ClusterSecretStore
+  target:
+    name: cloudflare-api-token
+    creationPolicy: Owner
+  data:
+    - secretKey: api-token
+      remoteRef:
+        key: CLOUDFLARE_CERT_MANAGER_TOKEN
