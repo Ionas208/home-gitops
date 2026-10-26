@@ -1,8 +1,7 @@
 # Bootstrap runbook
 
-> Status: target runbook for Phase 1-2. The referenced scripts, OpenTofu, Talos configs,
-> and Kubernetes manifests are not present in the repositories yet. Do not execute this
-> until the preceding phase gate is met.
+> Status: current for Phase 1. Argo CD is installed and self-manages through
+> `clusters/home/platform/argocd.yaml`. Steps 4-9 are Phase 2 and later.
 
 This is the end-to-end sequence for a fresh cluster. Host-side steps live in
 [`home-infra`](https://github.com/Ionas208/home-infra); this runbook ties them to Argo CD.

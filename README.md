@@ -8,13 +8,12 @@ External Secrets Operator.
 
 ## Status
 
-**Phase 0: documentation only.**
+**Phase 1: three-node Talos cluster with self-managed Argo CD.**
 
-No manifests, bootstrap scripts, or cluster resources exist yet. The directory structure
-and implementation are added one phase at a time, after the preceding phase works.
-
-The implementation scaffold that was drafted early has been preserved outside the
-repository and will be reintroduced only when its phase starts.
+- `bootstrap/argocd/install.sh` installs the pinned `argo-cd` chart and applies the root Application
+- `bootstrap/root-app.yaml` points at `clusters/home/` and is applied once
+- `clusters/home/platform/argocd.yaml` makes Argo manage its own release
+- Phase 2 platform services (networking, DNS, TLS, secrets, storage) are not present yet
 
 ## Documentation
 
@@ -23,23 +22,21 @@ repository and will be reintroduced only when its phase starts.
 - [`docs/architecture.md`](docs/architecture.md) — network, DNS, TLS, GitOps, secrets, storage
 - [`docs/inventory.md`](docs/inventory.md) — hardware and cluster inventory
 - [`docs/decisions/`](docs/decisions/) — architecture decision records
-- [`docs/runbooks/`](docs/runbooks/) — target runbooks for later phases
+- [`docs/runbooks/`](docs/runbooks/) — bootstrap, upgrade, restore, and add-app runbooks
 
-## Planned structure
-
-Created in later phases, not present now:
+## Structure
 
 ```text
-bootstrap/          one-time Argo CD bootstrap
-clusters/home/      Argo CD Application CRs and AppProjects
-platform/           platform manifests and Helm values
-apps/               workload manifests
+bootstrap/          one-time Argo CD bootstrap and the root Application
+clusters/home/      Argo CD Application CRs, grouped by layer
+platform/           platform manifests and Helm values (Phase 2)
+apps/               workload manifests (Phase 3)
 charts/             local Helm charts, if needed
 hack/               local validation helpers
 ```
 
-Phase 0 deliberately contains only the documentation needed to make the later phases
-boring and repeatable.
+Only `bootstrap/` and `clusters/home/` exist today. Later directories are added when
+their phase starts.
 
 ## Related repository
 

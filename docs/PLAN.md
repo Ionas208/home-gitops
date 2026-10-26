@@ -232,7 +232,7 @@ Both platform repositories are public. No secrets in either.
 
 ## 13. Roadmap
 
-### Phase 0 - document and decide (current)
+### Phase 0 - document and decide
 
 - Create both repositories and the Phase 0 documentation.
 - Record ADRs.
@@ -240,7 +240,7 @@ Both platform repositories are public. No secrets in either.
 - Do not add implementation files yet.
 - Exit: docs are reviewable; no Kubernetes, Talos, or OpenTofu files exist.
 
-### Phase 1 - Proxmox, Talos, Argo
+### Phase 1 - Proxmox, Talos, Argo (current)
 
 - Install Proxmox on the current host.
 - Add OpenTofu for three Talos VMs.
