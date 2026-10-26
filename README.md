@@ -8,13 +8,16 @@ External Secrets Operator.
 
 ## Status
 
-**Phase 2 in progress: MetalLB and Gateway-routed Traefik are running.**
+**Phase 2 in progress: MetalLB, Gateway-routed Traefik, TLS and External Secrets are running.**
 
 - `bootstrap/argocd/install.sh` installs the pinned `argo-cd` chart and applies the root Application
 - `bootstrap/root-app.yaml` points at `clusters/home/` and is applied once
 - `clusters/home/platform/argocd.yaml` makes Argo manage its own release
 - MetalLB serves `192.168.178.243-192.168.178.248`; Traefik holds `.243` and routes Gateway API `HTTPRoute`s
-- Still missing: TLS, `lan-dns`, ESO, cloudflared, Tailscale, QNAP storage
+- Let's Encrypt wildcard `*.home.jonasseidl.com` via Cloudflare DNS-01, served on the `websecure` listener
+- External Secrets reads from Bitwarden; the Cloudflare token never enters Git
+- Argo UI: `https://argocd.home.jonasseidl.com` (needs `lan-dns` or an `/etc/hosts` entry)
+- Still missing: `lan-dns`, cloudflared, Tailscale, QNAP storage
 
 ## Documentation
 

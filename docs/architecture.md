@@ -135,6 +135,19 @@ Client --TLS--> Cloudflare edge --tunnel--> cloudflared --HTTP--> Traefik :80
 Cloudflare terminates public TLS. The tunnel origin is plain HTTP inside the cluster.
 Internal traffic uses Traefik `websecure` with the wildcard certificate.
 
+### Internal certificates
+
+Not everything uses a public CA. Cluster-internal services get certificates from a
+private CA, because their names never resolve publicly and no public CA would sign
+them:
+
+- `ClusterIssuer selfsigned` → `Certificate bitwarden-sdk-ca` (10 years)
+- `Issuer bitwarden-sdk-ca` → `Certificate bitwarden-sdk-server` (1 year, renewed)
+- External Secrets trusts it via `caProvider` on the `ClusterSecretStore`
+
+That trust is not cluster-wide. Only the client that names the CA in `caProvider`
+accepts it; no node or other workload does.
+
 ### Entrypoints
 
 | Entrypoint  | Container port | Service port | Used by                       |
@@ -166,16 +179,20 @@ bootstrap/root-app.yaml
   └─ root Application -> clusters/home/
 
 clusters/home/
-  ├─ projects.yaml                 AppProjects
-  ├─ platform/argocd.yaml          Argo manages itself
-  ├─ platform/external-secrets.yaml
-  ├─ platform/metallb.yaml         chart
-  ├─ platform/metallb-config.yaml  IPAddressPool + L2Advertisement
-  ├─ platform/gateway-api.yaml     Gateway API CRDs
-  ├─ platform/traefik-crds.yaml    Traefik CRDs (Argo skips chart crds/)
-  ├─ platform/traefik.yaml         chart, Gateway provider
+  ├─ projects.yaml                     AppProjects
+  ├─ platform/argocd.yaml              Argo manages itself
+  ├─ platform/argocd-route.yaml        HTTPRoute for the Argo UI
+  ├─ platform/external-secrets.yaml    chart + Bitwarden SDK server
+  ├─ platform/external-secrets-store.yaml  ClusterSecretStore
+  ├─ platform/metallb.yaml             chart
+  ├─ platform/metallb-config.yaml      IPAddressPool + L2Advertisement
+  ├─ platform/gateway-api.yaml         Gateway API CRDs
+  ├─ platform/traefik-crds.yaml        Traefik CRDs (Argo skips chart crds/)
+  ├─ platform/traefik.yaml             chart, Gateway provider
+  ├─ platform/cert-manager.yaml        chart
+  ├─ platform/cert-manager-internal.yaml   private CA, before ESO
+  ├─ platform/cert-manager-acme.yaml   Let's Encrypt issuers and wildcard
   ├─ platform/dns.yaml
-  ├─ platform/cert-manager.yaml
   ├─ platform/cloudflared.yaml
   ├─ platform/tailscale.yaml
   ├─ platform/local-path.yaml
@@ -183,9 +200,18 @@ clusters/home/
   └─ apps/portfolio.yaml, apps/strava-mcp.yaml
 ```
 
+Component directories under `platform/` hold their chart values at the root; each
+subdirectory is one sync unit named for its purpose (`cert-manager/internal`,
+`cert-manager/acme`, `external-secrets/store`).
+
 The root Application is applied once and is not self-managed. It creates the real
 AppProjects and child Applications. Child Applications carry sync-wave annotations
 so ordering is explicit: MetalLB, then CRDs, then Traefik, then consumers.
+
+The two cert-manager config Applications exist because of dependency direction,
+not resource type: `internal` must finish before External Secrets starts (it signs
+the Bitwarden SDK server certificate), while `acme` must wait for External Secrets
+(it reads its Cloudflare token from the store).
 
 Argo CD's own Application uses `prune: false`; everything else uses automated sync,
 prune, and self-heal. Argo chart upgrades are proposed by Renovate, reviewed, merged,
