@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: www
+  name: portfolio
   namespace: argocd
   annotations:
     argocd.argoproj.io/sync-wave: "0"
@@ -10,7 +10,7 @@ spec:
   source:
     repoURL: https://github.com/Ionas208/home-gitops.git
     targetRevision: main
-    path: platform/www
+    path: platform/portfolio
   destination:
     server: https://kubernetes.default.svc
     namespace: public

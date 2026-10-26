@@ -137,7 +137,7 @@ cert-manager
 Public traffic:
 
 ```text
-Client --TLS--> Cloudflare edge --tunnel--> cloudflared --HTTP--> www (static nginx)
+Client --TLS--> Cloudflare edge --tunnel--> cloudflared --HTTP--> portfolio (static nginx)
 ```
 
 Cloudflare terminates public TLS. The tunnel origin is plain HTTP inside the cluster.

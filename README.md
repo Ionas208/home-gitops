@@ -18,7 +18,7 @@ External Secrets Operator.
 - External Secrets reads from Bitwarden; the Cloudflare token never enters Git
 - `*.home.jonasseidl.com` resolves from public DNS-only records to `192.168.178.243` (LAN-only address)
 - cloudflared connects out to the Cloudflare tunnel; no inbound ports are open
-- `jonasseidl.com` is a static "work in progress" page served by its own nginx, never by Traefik
+- `jonasseidl.com` serves the portfolio landing page from its own nginx, never through Traefik
 - Argo UI: `https://argocd.home.jonasseidl.com`
 - Still missing: Tailscale, QNAP storage
 

@@ -1,11 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: www
+  name: portfolio
   namespace: public
 spec:
   selector:
-    app.kubernetes.io/name: www
+    app.kubernetes.io/name: portfolio
   ports:
     - name: http
       port: 80
