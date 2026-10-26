@@ -13,10 +13,21 @@ spec:
     targetRevision: "0.16.1"
     helm:
       releaseName: metallb
+      valuesObject:
+        # L2 mode only; FRR is the BGP backend and brings extra host-networked pods.
+        frrk8s:
+          enabled: false
   destination:
     server: https://kubernetes.default.svc
     namespace: metallb-system
   syncPolicy:
+    # The speaker needs hostNetwork, host ports, and NET_RAW. Talos enforces the
+    # baseline PodSecurity profile cluster-wide, so this namespace must opt out.
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged
     automated:
       prune: true
       selfHeal: true
