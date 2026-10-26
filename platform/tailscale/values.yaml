@@ -2,8 +2,11 @@
 # The API server proxy is reachable at https://home-operator.tamandua-regulus.ts.net
 operatorConfig:
   hostname: home-operator
+  # The OAuth client can only request tag:k8s, so the operator shares the proxy
+  # tag. With an allow-all ACL the operator/proxy distinction buys nothing; split
+  # them again once the client is permitted to request tag:k8s-operator.
   defaultTags:
-    - tag:k8s-operator
+    - tag:k8s
 
 proxyConfig:
   # Applied to every proxy the operator creates, including the subnet router.
