@@ -17,8 +17,9 @@ External Secrets Operator.
 - Let's Encrypt wildcard `*.home.jonasseidl.com` via Cloudflare DNS-01, served on the `websecure` listener
 - External Secrets reads from Bitwarden; the Cloudflare token never enters Git
 - `*.home.jonasseidl.com` resolves from public DNS-only records to `192.168.178.243` (LAN-only address)
+- cloudflared connects out to the Cloudflare tunnel; no inbound ports are open
 - Argo UI: `https://argocd.home.jonasseidl.com`
-- Still missing: cloudflared, Tailscale, QNAP storage
+- Still missing: Tailscale, QNAP storage
 
 ## Documentation
 
