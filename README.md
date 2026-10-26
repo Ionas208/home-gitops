@@ -8,12 +8,13 @@ External Secrets Operator.
 
 ## Status
 
-**Phase 1: three-node Talos cluster with self-managed Argo CD.**
+**Phase 2 in progress: MetalLB and Gateway-routed Traefik are running.**
 
 - `bootstrap/argocd/install.sh` installs the pinned `argo-cd` chart and applies the root Application
 - `bootstrap/root-app.yaml` points at `clusters/home/` and is applied once
 - `clusters/home/platform/argocd.yaml` makes Argo manage its own release
-- Phase 2 platform services (networking, DNS, TLS, secrets, storage) are not present yet
+- MetalLB serves `192.168.178.243-192.168.178.248`; Traefik holds `.243` and routes Gateway API `HTTPRoute`s
+- Still missing: TLS, `lan-dns`, ESO, cloudflared, Tailscale, QNAP storage
 
 ## Documentation
 

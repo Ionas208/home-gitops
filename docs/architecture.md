@@ -137,13 +137,24 @@ Internal traffic uses Traefik `websecure` with the wildcard certificate.
 
 ### Entrypoints
 
-| Entrypoint  | Port | Used by                                |
-|-------------|------|----------------------------------------|
-| `web`       | 80   | cloudflared and public IngressRoutes   |
-| `websecure` | 443  | LAN clients and internal IngressRoutes |
+| Entrypoint  | Container port | Service port | Used by                       |
+|-------------|----------------|--------------|-------------------------------|
+| `web`       | 8000           | 80           | cloudflared, public HTTPRoutes |
+| `websecure` | 8443           | 443          | LAN clients, internal HTTPRoutes |
+
+Ingress objects are not used. Routing is Gateway API only:
+
+- `GatewayClass` `traefik`, created by the Traefik chart
+- `Gateway` `traefik` in the `traefik` namespace, address `<TRAEFIK_VIP>`
+- `HTTPRoute` resources in application namespaces
+
+The `kubernetesIngress` provider is disabled, so `Ingress` objects are ignored.
+Traefik runs as a DaemonSet with `externalTrafficPolicy: Local` so client
+addresses survive and every node can answer for the VIP.
 
 There is no global HTTP-to-HTTPS redirect. Redirecting inside the cluster would
-break the tunnel origin. Internal routes explicitly use `websecure`.
+break the tunnel origin. Internal routes attach to the `websecure` listener
+explicitly.
 
 ## 5. GitOps flow
 
@@ -158,8 +169,11 @@ clusters/home/
   ├─ projects.yaml                 AppProjects
   ├─ platform/argocd.yaml          Argo manages itself
   ├─ platform/external-secrets.yaml
-  ├─ platform/metallb.yaml
-  ├─ platform/traefik.yaml
+  ├─ platform/metallb.yaml         chart
+  ├─ platform/metallb-config.yaml  IPAddressPool + L2Advertisement
+  ├─ platform/gateway-api.yaml     Gateway API CRDs
+  ├─ platform/traefik-crds.yaml    Traefik CRDs (Argo skips chart crds/)
+  ├─ platform/traefik.yaml         chart, Gateway provider
   ├─ platform/dns.yaml
   ├─ platform/cert-manager.yaml
   ├─ platform/cloudflared.yaml
@@ -171,7 +185,7 @@ clusters/home/
 
 The root Application is applied once and is not self-managed. It creates the real
 AppProjects and child Applications. Child Applications carry sync-wave annotations
-and finalizers so removing one from Git cascades cleanly.
+so ordering is explicit: MetalLB, then CRDs, then Traefik, then consumers.
 
 Argo CD's own Application uses `prune: false`; everything else uses automated sync,
 prune, and self-heal. Argo chart upgrades are proposed by Renovate, reviewed, merged,
