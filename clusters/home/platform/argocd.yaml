@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://argoproj.github.io/argo-helm
+    chart: argo-cd
+    targetRevision: "10.11.6"
+    helm:
+      # Must match the Helm release created by bootstrap/argocd/install.sh so
+      # that Argo adopts the existing resources instead of recreating them.
+      releaseName: argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      # Self-management never prunes: a bad render must not delete Argo.
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=false
