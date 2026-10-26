@@ -1,0 +1,9 @@
+# CRDs are templates in this chart, installed by Argo (see the Application's
+# ServerSideApply option - several are close to the 256 KB apply limit).
+installCRDs: true
+
+# External Secrets cannot link Bitwarden's Rust SDK, so the chart bundles it as
+# a separate HTTPS service. It mounts a certificate that cert-manager issues
+# in the cert-manager-ca Application.
+bitwarden-sdk-server:
+  enabled: true
