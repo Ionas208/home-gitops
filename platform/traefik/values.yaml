@@ -1,0 +1,35 @@
+deployment:
+  kind: DaemonSet
+
+providers:
+  # Ingress API is intentionally off; Gateway API is the only entry point.
+  kubernetesIngress:
+    enabled: false
+  kubernetesCRD:
+    enabled: true
+  kubernetesGateway:
+    enabled: true
+
+ingressClass:
+  enabled: false
+
+gatewayClass:
+  enabled: true
+  name: traefik
+
+gateway:
+  enabled: true
+  name: traefik
+  listeners:
+    web:
+      # Container port, not the Service port (Service maps 80 -> 8000).
+      port: 8000
+      protocol: HTTP
+      namespacePolicy:
+        from: All
+
+service:
+  annotations:
+    metallb.io/loadBalancerIPs: 192.168.178.243
+  spec:
+    externalTrafficPolicy: Local
