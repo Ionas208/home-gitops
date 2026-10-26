@@ -1,0 +1,14 @@
+# The API server proxy impersonates the caller's tailnet login name, so this
+# binds that identity. Tailscale login: 10jonas101@gmail.com
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: tailscale-jonas-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: 10jonas101@gmail.com
