@@ -108,7 +108,7 @@ replaced before deployment.
 | cloudflared               | REPLACE_ME | pin image                     |
 | csi-driver-nfs            | REPLACE_ME | pin Helm chart                |
 | local-path-provisioner    | REPLACE_ME | pin Helm chart                |
-| Tailscale operator        | REPLACE_ME | pin Helm chart                |
+| Tailscale operator        | 1.104.2    | pin Helm chart                |
 
 All `REPLACE_ME` values must be pinned before the first successful Argo sync.
 
