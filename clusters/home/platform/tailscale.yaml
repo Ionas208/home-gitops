@@ -1,0 +1,40 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: tailscale
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  sources:
+    - repoURL: https://pkgs.tailscale.com/helmcharts
+      chart: tailscale-operator
+      targetRevision: 1.104.2
+      helm:
+        releaseName: tailscale-operator
+        valueFiles:
+          - $values/platform/tailscale/values.yaml
+    - repoURL: https://github.com/Ionas208/home-gitops.git
+      targetRevision: main
+      ref: values
+    - repoURL: https://github.com/Ionas208/home-gitops.git
+      targetRevision: main
+      path: platform/tailscale/manifests
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: tailscale
+  syncPolicy:
+    # Proxy and Connector pods need /dev/net/tun, which requires privileged.
+    # Scoped to this namespace, like metallb-system.
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

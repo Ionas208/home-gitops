@@ -1,0 +1,23 @@
+# tailnet: tamandua-regulus.ts.net
+# The API server proxy is reachable at https://home-operator.tamandua-regulus.ts.net
+operatorConfig:
+  hostname: home-operator
+  defaultTags:
+    - tag:k8s-operator
+
+proxyConfig:
+  # Applied to every proxy the operator creates, including the subnet router.
+  defaultTags: tag:k8s
+
+# The Secret is pre-created by External Secrets from Bitwarden. The chart mounts
+# it instead of taking a client secret through values, so nothing secret is in
+# Git. It must contain the files client_id and client_secret.
+oauthSecretVolume:
+  secret:
+    secretName: tailscale-oauth
+
+apiServerProxyConfig:
+  # Auth mode: the proxy impersonates the tailnet identity and adds impersonation
+  # headers. Kubernetes RBAC then decides what that identity may do.
+  mode: "true"
+  allowImpersonation: "true"

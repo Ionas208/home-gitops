@@ -1,0 +1,21 @@
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: tailscale-oauth
+  namespace: tailscale
+spec:
+  refreshInterval: 1h
+  secretStoreRef:
+    name: bitwarden
+    kind: ClusterSecretStore
+  target:
+    name: tailscale-oauth
+    creationPolicy: Owner
+  data:
+    # Key names are fixed by the operator: it reads these as mounted files.
+    - secretKey: client_id
+      remoteRef:
+        key: TAILSCALE_OAUTH_CLIENT_ID
+    - secretKey: client_secret
+      remoteRef:
+        key: TAILSCALE_OAUTH_CLIENT_SECRET

@@ -1,0 +1,13 @@
+apiVersion: tailscale.com/v1alpha1
+kind: Connector
+metadata:
+  name: lan
+  namespace: tailscale
+spec:
+  # Two replicas so the route survives a node draining; Tailscale picks one as
+  # primary and fails over.
+  replicas: 2
+  hostnamePrefix: home-lan
+  subnetRouter:
+    advertiseRoutes:
+      - 192.168.178.0/24
