@@ -137,11 +137,23 @@ cert-manager
 Public traffic:
 
 ```text
-Client --TLS--> Cloudflare edge --tunnel--> cloudflared --HTTP--> Traefik :80
+Client --TLS--> Cloudflare edge --tunnel--> cloudflared --HTTP--> www (static nginx)
 ```
 
 Cloudflare terminates public TLS. The tunnel origin is plain HTTP inside the cluster.
-Internal traffic uses Traefik `websecure` with the wildcard certificate.
+
+The tunnel does **not** point at Traefik. Each public hostname maps directly to the
+one Service that answers it, so the internet-facing path can reach a static file
+server and nothing else. A vulnerability in Traefik, or in any internal route, has no
+public entry point. `mcp` will map to its own Service the same way.
+
+Traefik is therefore a LAN-only ingress. Internal traffic uses `websecure` with the
+wildcard certificate.
+
+Note: `NetworkPolicy` is not enforced, because the cluster runs flannel. The
+separation above is reachability at the tunnel configuration level, not packet
+filtering. A compromised `www` pod could still open connections to other cluster
+services.
 
 ### Internal certificates
 
@@ -158,9 +170,9 @@ accepts it; no node or other workload does.
 
 ### Entrypoints
 
-| Entrypoint  | Container port | Service port | Used by                       |
-|-------------|----------------|--------------|-------------------------------|
-| `web`       | 8000           | 80           | cloudflared, public HTTPRoutes |
+| Entrypoint  | Container port | Service port | Used by                          |
+|-------------|----------------|--------------|----------------------------------|
+| `web`       | 8000           | 80           | LAN checks only; no public traffic |
 | `websecure` | 8443           | 443          | LAN clients, internal HTTPRoutes |
 
 Ingress objects are not used. Routing is Gateway API only:
@@ -296,6 +308,7 @@ admin access, or a failed rebuild. The offsite copy is mandatory.
 - No public Kubernetes API.
 - No public Argo CD or Grafana.
 - Public services only through Cloudflare Tunnel.
+- Each public hostname maps to exactly one Service; the tunnel never points at Traefik.
 - Admin services only on `websecure` and/or Tailscale.
 - Cloudflare Access service tokens for machine-to-machine public endpoints.
 - ARC runners never receive cluster credentials.
