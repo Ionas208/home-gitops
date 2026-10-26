@@ -57,39 +57,47 @@ Keep the LAN, pod, and service CIDRs non-overlapping.
 
 ## 3. DNS
 
-### Two CoreDNS instances
+### One resolver, and it is not ours
 
-| Instance              | Owner   | Purpose                        |
-|-----------------------|---------|--------------------------------|
-| `kube-system/coredns` | Talos   | Kubernetes cluster DNS         |
-| `lan-dns/lan-dns`     | Argo CD | LAN resolver and internal zone |
+DNS is not run inside the cluster. Clients keep using the FRITZ!Box, which forwards
+to the provider, which resolves everything — including `home.jonasseidl.com` — from
+Cloudflare, exactly like any public name.
 
-They are deliberately separate. A broken LAN zone should not take down cluster DNS,
-and a Talos upgrade should not change LAN resolution.
+That is deliberate. A LAN resolver on a single Proxmox host is less reliable than
+the router it replaces: any host, cluster, CNI, or MetalLB failure would take name
+resolution down for the whole LAN while the internet itself was fine. Publishing a
+private address costs a little information and buys complete independence from our
+own hardware. `kube-system/coredns` remains for cluster service discovery only and
+never answers LAN clients.
 
-### Internal zone
+### Internal names
 
-`lan-dns` is authoritative for `home.jonasseidl.com` and answers on `<DNS_VIP>`.
+`home.jonasseidl.com` is public in Cloudflare, **DNS-only** (proxy off):
 
-| Record                        | Target          |
-|-------------------------------|-----------------|
-| `*.home.jonasseidl.com`       | `<TRAEFIK_VIP>` |
-| `home.jonasseidl.com`         | `<TRAEFIK_VIP>` |
-| `ns.home.jonasseidl.com`      | `<DNS_VIP>`     |
-| `proxmox.home.jonasseidl.com` | `<PROXMOX_IP>`  |
+| Record                  | Target          |
+|-------------------------|-----------------|
+| `home.jonasseidl.com`   | `<TRAEFIK_VIP>` |
+| `*.home.jonasseidl.com` | `<TRAEFIK_VIP>` |
 
 The wildcard covers every service, so a new `HTTPRoute` needs no DNS change, and it
-matches the wildcard certificate exactly. Explicit records override it, which keeps
-Proxmox and later the NAS off the ingress VIP. The TTL is 3600 so clients can ride
-out a short resolver outage from cache.
+matches the wildcard certificate exactly. The address is RFC1918: off-LAN it simply
+does not route and the TLS handshake fails. Hostnames are already public through
+Certificate Transparency, so the record discloses little beyond that.
 
-Everything outside the zone is forwarded to public resolvers. `fritz.box` is
-forwarded back to the router, because clients no longer ask the router directly.
+Proxmox is reached by IP. An explicit record would resolve to Traefik and return 404.
+
+### Rebind protection
+
+The FRITZ!Box drops upstream answers that contain private addresses. Therefore
+`home.jonasseidl.com` is listed under Netzwerk → Netzwerkeinstellungen →
+DNS-Rebind-Schutz as a hostname exception, which also covers its subdomains.
+
+Negative caching matters when records are added: after an NXDOMAIN has been cached,
+the router can keep serving it for up to about 30 minutes.
 
 ### Public DNS
 
-Public names are explicit Cloudflare records. Do **not** create a public wildcard
-`*.jonasseidl.com`, because it would also cover `home.jonasseidl.com`.
+Other names remain explicit records, proxied through the Cloudflare Tunnel:
 
 | Record                  | Target                                   |
 |-------------------------|------------------------------------------|
@@ -98,21 +106,16 @@ Public names are explicit Cloudflare records. Do **not** create a public wildcar
 | `mcp.jonasseidl.com`    | Cloudflare Tunnel + Access service token |
 | `status.jonasseidl.com` | external uptime service (later)          |
 
-`home.jonasseidl.com` has no public record. It resolves only through `lan-dns`.
+The wildcard is scoped to `home`, never `*.jonasseidl.com`, so the apex and every
+other subdomain keep their proxied, tunnel-backed records.
 
 ### DHCP
 
 - DHCP stays on the FRITZ!Box.
-- The router exposes a single field, "Lokaler DNS-Server". It is set to `<DNS_VIP>`,
-  which is what every DHCP client receives.
-- There is **no secondary DNS**. If the cluster is down, the LAN has no name
-  resolution. That is the accepted cost of keeping DNS in Kubernetes.
-- Mitigations: two replicas on different nodes, a `PodDisruptionBudget` so
-  maintenance cannot take both down, and a 3600 TTL so cached answers survive a
-  short outage. A resolver on separate hardware is the only true fallback.
-- Clients query `lan-dns` directly, so the router is not in the resolution path.
-  Its upstream DNS setting is irrelevant and must not be pointed at `<DNS_VIP>`.
-- Proxmox and Talos host DNS point at public resolvers, never at `lan-dns`.
+- "Lokaler DNS-Server" stays empty, so clients receive the router as their resolver,
+  the same as before this cluster existed.
+- No custom resolver means no LAN-wide DNS outage caused by the cluster or the host.
+- Proxmox and Talos host DNS point at public resolvers.
 
 Do not move DHCP into the cluster.
 
