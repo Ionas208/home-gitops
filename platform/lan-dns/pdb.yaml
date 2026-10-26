@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: lan-dns
+  namespace: lan-dns
+spec:
+  # There is no secondary DNS on the LAN, so a drain must never take both
+  # replicas at once.
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: lan-dns

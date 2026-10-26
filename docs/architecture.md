@@ -62,24 +62,29 @@ Keep the LAN, pod, and service CIDRs non-overlapping.
 | Instance              | Owner   | Purpose                        |
 |-----------------------|---------|--------------------------------|
 | `kube-system/coredns` | Talos   | Kubernetes cluster DNS         |
-| `dns/lan-dns`         | Argo CD | LAN resolver and internal zone |
+| `lan-dns/lan-dns`     | Argo CD | LAN resolver and internal zone |
 
 They are deliberately separate. A broken LAN zone should not take down cluster DNS,
 and a Talos upgrade should not change LAN resolution.
 
 ### Internal zone
 
-`home.jonasseidl.com` is authoritative on `lan-dns`.
+`lan-dns` is authoritative for `home.jonasseidl.com` and answers on `<DNS_VIP>`.
 
 | Record                        | Target          |
 |-------------------------------|-----------------|
 | `*.home.jonasseidl.com`       | `<TRAEFIK_VIP>` |
+| `home.jonasseidl.com`         | `<TRAEFIK_VIP>` |
+| `ns.home.jonasseidl.com`      | `<DNS_VIP>`     |
 | `proxmox.home.jonasseidl.com` | `<PROXMOX_IP>`  |
-| `qnap.home.jonasseidl.com`    | `<QNAP_IP>`     |
-| `talos.home.jonasseidl.com`   | `<TALOS_CP_IP>` |
 
-The wildcard points at Traefik. Explicit host records override the wildcard so
-Proxmox/QNAP/Talos do not route through the ingress VIP.
+The wildcard covers every service, so a new `HTTPRoute` needs no DNS change, and it
+matches the wildcard certificate exactly. Explicit records override it, which keeps
+Proxmox and later the NAS off the ingress VIP. The TTL is 3600 so clients can ride
+out a short resolver outage from cache.
+
+Everything outside the zone is forwarded to public resolvers. `fritz.box` is
+forwarded back to the router, because clients no longer ask the router directly.
 
 ### Public DNS
 
@@ -98,16 +103,16 @@ Public names are explicit Cloudflare records. Do **not** create a public wildcar
 ### DHCP
 
 - DHCP stays on the FRITZ!Box.
-- Primary DNS advertised to clients: `<DNS_VIP>`.
-- Secondary DNS: FRITZ!Box or a public resolver, so the internet still works if
-  the cluster is down.
-- Proxmox and Talos host DNS point at public resolvers or the FRITZ!Box, never
-  at `lan-dns`.
-
-If the FRITZ!Box cannot advertise a custom DNS server through DHCP, either:
-
-1. point FRITZ!Box upstream DNS at `<DNS_VIP>`, or
-2. set DNS manually on the clients that need internal names.
+- The router exposes a single field, "Lokaler DNS-Server". It is set to `<DNS_VIP>`,
+  which is what every DHCP client receives.
+- There is **no secondary DNS**. If the cluster is down, the LAN has no name
+  resolution. That is the accepted cost of keeping DNS in Kubernetes.
+- Mitigations: two replicas on different nodes, a `PodDisruptionBudget` so
+  maintenance cannot take both down, and a 3600 TTL so cached answers survive a
+  short outage. A resolver on separate hardware is the only true fallback.
+- Clients query `lan-dns` directly, so the router is not in the resolution path.
+  Its upstream DNS setting is irrelevant and must not be pointed at `<DNS_VIP>`.
+- Proxmox and Talos host DNS point at public resolvers, never at `lan-dns`.
 
 Do not move DHCP into the cluster.
 

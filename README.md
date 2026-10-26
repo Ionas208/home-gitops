@@ -16,8 +16,9 @@ External Secrets Operator.
 - MetalLB serves `192.168.178.243-192.168.178.248`; Traefik holds `.243` and routes Gateway API `HTTPRoute`s
 - Let's Encrypt wildcard `*.home.jonasseidl.com` via Cloudflare DNS-01, served on the `websecure` listener
 - External Secrets reads from Bitwarden; the Cloudflare token never enters Git
-- Argo UI: `https://argocd.home.jonasseidl.com` (needs `lan-dns` or an `/etc/hosts` entry)
-- Still missing: `lan-dns`, cloudflared, Tailscale, QNAP storage
+- `lan-dns` serves `*.home.jonasseidl.com` and the apex on `192.168.178.244`
+- Argo UI: `https://argocd.home.jonasseidl.com` (set `Lokaler DNS-Server` on the FRITZ!Box to `.244`)
+- Still missing: cloudflared, Tailscale, QNAP storage
 
 ## Documentation
 
