@@ -9,7 +9,8 @@ data:
   Corefile: |
     home.jonasseidl.com:53 {
         errors
-        cache 300
+        # No cache plugin: the file plugin serves from memory, and the cache
+        # would cap the zone's TTL at its own maximum.
         file /etc/coredns/home.zone home.jonasseidl.com
     }
 
