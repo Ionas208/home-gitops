@@ -70,8 +70,10 @@ spec:
               mountPath: /tmp
             - name: cache
               mountPath: /var/cache/nginx
-            - name: lib
-              mountPath: /var/lib/nginx
+            - name: nginx-tmp
+              # Must be the tmp directory itself, not /var/lib/nginx: an emptyDir
+              # there would hide the image's parent directory.
+              mountPath: /var/lib/nginx/tmp
       volumes:
         - name: content
           configMap:
@@ -91,7 +93,7 @@ spec:
           emptyDir: {}
         - name: cache
           emptyDir: {}
-        - name: lib
-          # Wolfi's nginx puts its temp paths under /var/lib/nginx, so the
+        - name: nginx-tmp
+          # Wolfi's nginx puts its temp paths under /var/lib/nginx/tmp, so the
           # read-only root filesystem needs this writable.
           emptyDir: {}
