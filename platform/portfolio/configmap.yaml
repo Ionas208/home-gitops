@@ -11,6 +11,7 @@ data:
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <title>Work in progress</title>
     <style>
       :root {
@@ -91,6 +92,13 @@ data:
       </main>
     </body>
     </html>
+  icon.svg: |
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="14" fill="#06070a"/>
+      <circle cx="18" cy="32" r="6" fill="#8b9cff"/>
+      <circle cx="32" cy="32" r="6" fill="#8b9cff" opacity=".65"/>
+      <circle cx="46" cy="32" r="6" fill="#8b9cff" opacity=".35"/>
+    </svg>
   default.conf: |
     server {
         listen 8080;
@@ -103,7 +111,7 @@ data:
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "DENY" always;
         add_header Referrer-Policy "no-referrer" always;
-        add_header Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'" always;
+        add_header Content-Security-Policy "default-src 'none'; style-src 'unsafe-inline'; img-src 'self'; base-uri 'none'; form-action 'none'" always;
 
         location / {
             try_files $uri $uri/ =404;
