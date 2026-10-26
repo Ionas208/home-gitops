@@ -1,0 +1,21 @@
+# TLS terminates on the Gateway's websecure listener using the wildcard
+# certificate. The backend is plain HTTP because the Argo server runs with
+# server.insecure=true.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: argocd
+  namespace: argocd
+spec:
+  parentRefs:
+    # sectionName pins the route to the TLS listener. Without it the route
+    # would also attach to web, exposing the UI over plain HTTP.
+    - name: traefik
+      namespace: traefik
+      sectionName: websecure
+  hostnames:
+    - argocd.home.jonasseidl.com
+  rules:
+    - backendRefs:
+        - name: argocd-server
+          port: 80

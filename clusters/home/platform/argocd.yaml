@@ -13,6 +13,12 @@ spec:
       # Must match the Helm release created by bootstrap/argocd/install.sh so
       # that Argo adopts the existing resources instead of recreating them.
       releaseName: argocd
+      valuesObject:
+        configs:
+          params:
+            # TLS terminates at Traefik on the websecure listener, so the
+            # server speaks plain HTTP to the Gateway backend.
+            server.insecure: "true"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

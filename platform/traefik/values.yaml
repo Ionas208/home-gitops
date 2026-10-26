@@ -27,6 +27,16 @@ gateway:
       protocol: HTTP
       namespacePolicy:
         from: All
+    websecure:
+      # Service maps 443 -> 8443. The wildcard Secret lives in this namespace,
+      # so no ReferenceGrant is needed for the certificateRef.
+      port: 8443
+      protocol: HTTPS
+      namespacePolicy:
+        from: All
+      certificateRefs:
+        - name: wildcard-home-jonasseidl-com-tls
+          kind: Secret
 
 service:
   annotations:
