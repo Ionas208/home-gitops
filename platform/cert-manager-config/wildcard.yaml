@@ -2,8 +2,8 @@
 # Gateway can only reference Secrets from its own namespace without a
 # ReferenceGrant, and the Gateway lives there.
 #
-# Starts on staging: a failed order there costs nothing, while production has
-# a 5-per-week duplicate limit for this exact name set.
+# Validated on letsencrypt-staging first. Production has a 5-per-week duplicate
+# limit for this name set, so the staging order is not a formality.
 apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
@@ -16,7 +16,7 @@ spec:
     - "*.home.jonasseidl.com"
   issuerRef:
     kind: ClusterIssuer
-    name: letsencrypt-staging
+    name: letsencrypt-prod
   duration: 2160h
   renewBefore: 720h
   privateKey:
