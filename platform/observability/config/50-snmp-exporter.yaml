@@ -170,7 +170,7 @@ spec:
                 name: qnap-snmp
           ports:
             - name: http
-              containerPort: 9115
+              containerPort: 9116
           readinessProbe:
             httpGet:
               path: /
@@ -210,5 +210,5 @@ spec:
     app.kubernetes.io/name: snmp-exporter
   ports:
     - name: http
-      port: 9115
+      port: 9116
       targetPort: http
