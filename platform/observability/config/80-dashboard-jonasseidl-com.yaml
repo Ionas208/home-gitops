@@ -340,7 +340,7 @@ data:
         {
           "id": 5,
           "type": "stat",
-          "title": "CPU",
+          "title": "VM CPU",
           "gridPos": {
             "h": 4,
             "w": 4,
@@ -399,12 +399,13 @@ data:
             "textMode": "auto",
             "justifyMode": "auto",
             "orientation": "auto"
-          }
+          },
+          "description": "CPU utilisation inside the Talos VM (talos-cp-1), from node_exporter. The Proxmox host's own CPU is not included."
         },
         {
           "id": 6,
           "type": "stat",
-          "title": "Memory",
+          "title": "VM memory",
           "gridPos": {
             "h": 4,
             "w": 4,
@@ -463,12 +464,13 @@ data:
             "textMode": "auto",
             "justifyMode": "auto",
             "orientation": "auto"
-          }
+          },
+          "description": "Memory used inside the Talos VM (talos-cp-1) from node_exporter. The Proxmox host has separate memory and is not shown here."
         },
         {
           "id": 7,
           "type": "stat",
-          "title": "Root disk used",
+          "title": "VM disk used",
           "gridPos": {
             "h": 4,
             "w": 4,
@@ -527,7 +529,8 @@ data:
             "textMode": "auto",
             "justifyMode": "auto",
             "orientation": "auto"
-          }
+          },
+          "description": "Root filesystem (/) of the Talos VM, not the Proxmox host disk or the NAS."
         },
         {
           "id": 8,
