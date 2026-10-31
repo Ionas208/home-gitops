@@ -8,8 +8,10 @@ metadata:
 spec:
   jobName: snmp-qnap
   # Gentle: RAID and disk status do not change by the second, and a v3 walk of
-  # the QTS storage subtree is real work for a 4-core ARM NAS.
+  # the QTS storage subtree is real work for a 4-core ARM NAS. The walk also
+  # needs more than Prometheus's 10s default timeout.
   scrapeInterval: 120s
+  scrapeTimeout: 40s
   metricsPath: /snmp
   params:
     module: [qnap]

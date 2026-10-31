@@ -160,11 +160,11 @@ spec:
           annotations:
             summary: "SNMP scraping of the QNAP is failing"
 
-        # The QTS-MIB status fields are strings; the exact values are confirmed
-        # against a live walk before this is trusted.
+        # The QTS-MIB status fields are strings. snmp_exporter renders them as a
+        # gauge with the value in a label of the same name.
         - alert: QnapRaidDegraded
           expr: |
-            snmp_raidStatus_info{raidStatus!="Ready"} == 1
+            raidStatus{raidStatus!="Ready"} == 1
               and on(instance) up{job="snmp-qnap"} == 1
           for: 5m
           labels:
@@ -172,9 +172,17 @@ spec:
           annotations:
             summary: "QNAP RAID {{ $labels.raidStatus }}"
 
+        - alert: QnapDiskFailed
+          expr: diskStatus{diskStatus!="Good"} == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "QNAP disk {{ $labels.diskIndex }}: {{ $labels.diskStatus }}"
+
         - alert: QnapVolumeFillingUp
           expr: |
-            (snmp_volumeCapacity - snmp_volumeFreeSize) / snmp_volumeCapacity > 0.8
+            (volumeCapacity - volumeFreeSize) / volumeCapacity > 0.8
           for: 30m
           labels:
             severity: warning
