@@ -354,7 +354,7 @@ data:
           "targets": [
             {
               "refId": "A",
-              "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+              "expr": "100 - (avg(rate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[5m])) * 100)",
               "instant": true,
               "range": false
             }
@@ -405,7 +405,7 @@ data:
         {
           "id": 6,
           "type": "stat",
-          "title": "VM memory",
+          "title": "VM memory used",
           "gridPos": {
             "h": 4,
             "w": 4,
@@ -419,7 +419,7 @@ data:
           "targets": [
             {
               "refId": "A",
-              "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
+              "expr": "100 * (1 - node_memory_MemAvailable_bytes{job=\"node-exporter\"} / node_memory_MemTotal_bytes{job=\"node-exporter\"})",
               "instant": true,
               "range": false
             }
@@ -484,7 +484,7 @@ data:
           "targets": [
             {
               "refId": "A",
-              "expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})",
+              "expr": "100 * (1 - node_filesystem_avail_bytes{job=\"node-exporter\",mountpoint=\"/var\"} / node_filesystem_size_bytes{job=\"node-exporter\",mountpoint=\"/var\"})",
               "instant": true,
               "range": false
             }
@@ -530,12 +530,12 @@ data:
             "justifyMode": "auto",
             "orientation": "auto"
           },
-          "description": "Root filesystem (/) of the Talos VM, not the Proxmox host disk or the NAS."
+          "description": "The /var partition of the Talos VM, which holds container images and local-path volumes. Talos has no / mount; /var is the persistent data path."
         },
         {
           "id": 8,
           "type": "stat",
-          "title": "Prometheus TSDB",
+          "title": "CPU requested",
           "gridPos": {
             "h": 4,
             "w": 4,
@@ -549,14 +549,14 @@ data:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(prometheus_tsdb_storage_blocks_bytes)",
+              "expr": "100 * sum(kube_pod_container_resource_requests{resource=\"cpu\"}) / sum(kube_node_status_allocatable{resource=\"cpu\"})",
               "instant": true,
               "range": false
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "unit": "bytes",
+              "unit": "percent",
               "decimals": 1,
               "color": {
                 "mode": "thresholds"
@@ -567,6 +567,14 @@ data:
                   {
                     "color": "green",
                     "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
                   }
                 ]
               }
@@ -586,12 +594,13 @@ data:
             "textMode": "auto",
             "justifyMode": "auto",
             "orientation": "auto"
-          }
+          },
+          "description": "Pod CPU requests as a percentage of node allocatable (5.95 cores). Actual usage is the VM CPU panel."
         },
         {
           "id": 9,
           "type": "stat",
-          "title": "Loki ingest",
+          "title": "Memory requested",
           "gridPos": {
             "h": 4,
             "w": 4,
@@ -605,14 +614,14 @@ data:
           "targets": [
             {
               "refId": "A",
-              "expr": "sum(rate(loki_distributor_bytes_received_total[5m]))",
+              "expr": "100 * sum(kube_pod_container_resource_requests{resource=\"memory\"}) / sum(kube_node_status_allocatable{resource=\"memory\"})",
               "instant": true,
               "range": false
             }
           ],
           "fieldConfig": {
             "defaults": {
-              "unit": "Bps",
+              "unit": "percent",
               "decimals": 1,
               "color": {
                 "mode": "thresholds"
@@ -623,6 +632,14 @@ data:
                   {
                     "color": "green",
                     "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
                   }
                 ]
               }
@@ -642,7 +659,8 @@ data:
             "textMode": "auto",
             "justifyMode": "auto",
             "orientation": "auto"
-          }
+          },
+          "description": "Pod memory requests as a percentage of node allocatable (13 GiB). Actual usage is the VM memory panel."
         },
         {
           "id": 10,
@@ -1015,7 +1033,7 @@ data:
         {
           "id": 16,
           "type": "stat",
-          "title": "Cloudflare tunnel",
+          "title": "Tunnel connections",
           "gridPos": {
             "h": 4,
             "w": 4,
@@ -1070,7 +1088,8 @@ data:
             "textMode": "auto",
             "justifyMode": "auto",
             "orientation": "auto"
-          }
+          },
+          "description": "Active HA connections from the two cloudflared replicas to Cloudflare's edge, 4 per replica. 8 is healthy; 0 means the tunnel is down."
         },
         {
           "id": 17,
