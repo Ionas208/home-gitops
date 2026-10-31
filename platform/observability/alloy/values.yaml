@@ -1,0 +1,46 @@
+# One Alloy pod per node, reading pod logs through the Kubernetes API. API-based
+# collection avoids mounting /var/log and keeps the pod unprivileged.
+controller:
+  type: daemonset
+
+alloy:
+  configMap:
+    content: |
+      discovery.kubernetes "pods" {
+        role = "pod"
+      }
+
+      loki.source.kubernetes "pods" {
+        targets    = discovery.kubernetes.pods.targets
+        forward_to = [loki.write.loki.receiver]
+      }
+
+      loki.write "loki" {
+        endpoint {
+          url = "http://loki.logging.svc.cluster.local:3100/loki/api/v1/push"
+        }
+      }
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+# loki.source.kubernetes needs pod logs, which the chart's default rules omit.
+rbac:
+  create: true
+  clusterRules:
+    - apiGroups: [""]
+      resources: ["pods", "pods/log", "namespaces", "nodes"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: [""]
+      resources: ["services", "endpoints"]
+      verbs: ["get", "list", "watch"]
+    - apiGroups: ["discovery.k8s.io"]
+      resources: ["endpointslices"]
+      verbs: ["get", "list", "watch"]
+
+serviceAccount:
+  create: true
