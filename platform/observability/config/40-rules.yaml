@@ -148,6 +148,30 @@ spec:
           annotations:
             summary: "Proxmox thin pool is above 80% used"
 
+    - name: backups
+      rules:
+        # With no offsite copy, a silently failing nightly job is the worst
+        # failure mode: everything looks healthy until the day you need it.
+        - alert: VzdumpBackupStale
+          expr: |
+            (time() - pve_vzdump_last_success_timestamp_seconds > 36 * 3600)
+              and pve_vzdump_last_success_timestamp_seconds > 0
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "No Proxmox VM backup has completed in 36 hours"
+
+        - alert: EtcdSnapshotStale
+          expr: |
+            (time() - etcd_snapshot_last_success_timestamp_seconds > 36 * 3600)
+              and etcd_snapshot_last_success_timestamp_seconds > 0
+          for: 1h
+          labels:
+            severity: critical
+          annotations:
+            summary: "No etcd snapshot has completed in 36 hours"
+
     - name: nas
       rules:
         # SNMP scrape itself failing. The ICMP probe distinguishes this from the

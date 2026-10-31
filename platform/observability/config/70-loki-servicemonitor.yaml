@@ -1,0 +1,15 @@
+# Loki's own metrics: ingest rate, active streams, compactor and query health.
+# The chart does not enable a ServiceMonitor by default, so the overview dashboard
+# would have no data for those panels.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: loki
+  namespace: logging
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: loki
+  endpoints:
+    - port: http-metrics
+      interval: 60s

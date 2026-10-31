@@ -1,0 +1,1494 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-jonasseidl-com
+  namespace: monitoring
+  labels:
+    grafana_dashboard: "1"
+data:
+  jonasseidl-com.json: |
+    {
+      "uid": "jonasseidl-com",
+      "title": "jonasseidl.com",
+      "tags": [
+        "homelab"
+      ],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "30s",
+      "editable": true,
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "templating": {
+        "list": []
+      },
+      "annotations": {
+        "list": []
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Node",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 0
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "kube_node_status_condition{condition=\"Ready\",status=\"true\"}",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "NotReady",
+                      "color": "red",
+                      "index": 0
+                    },
+                    "1": {
+                      "text": "Ready",
+                      "color": "green",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Argo apps",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 0
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "count(argocd_app_info{health_status!=\"Healthy\"}) or vector(0)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "Healthy",
+                      "color": "green",
+                      "index": 0
+                    },
+                    "1": {
+                      "text": "Unhealthy",
+                      "color": "red",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Firing alerts",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
+            "y": 0
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(ALERTS{alertstate=\"firing\",alertname!=\"Watchdog\"}) or vector(0)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "None",
+                      "color": "green",
+                      "index": 0
+                    },
+                    "1": {
+                      "text": "Firing",
+                      "color": "red",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 4,
+          "type": "stat",
+          "title": "Targets down",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 12,
+            "y": 0
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "count(up == 0) or vector(0)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "OK",
+                      "color": "green",
+                      "index": 0
+                    },
+                    "1": {
+                      "text": "BROKEN",
+                      "color": "red",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 5,
+          "type": "stat",
+          "title": "CPU",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 16,
+            "y": 0
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "100 - (avg(rate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 6,
+          "type": "stat",
+          "title": "Memory",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 20,
+            "y": 0
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 85
+                  },
+                  {
+                    "color": "red",
+                    "value": 93
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 7,
+          "type": "stat",
+          "title": "Root disk used",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "100 * (1 - node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 8,
+          "type": "stat",
+          "title": "Prometheus TSDB",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(prometheus_tsdb_storage_blocks_bytes)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 9,
+          "type": "stat",
+          "title": "Loki ingest",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(loki_distributor_bytes_received_total[5m]))",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "Bps",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 10,
+          "type": "stat",
+          "title": "Thin pool",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 12,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "pve_thinpool_used_percent",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 0,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 11,
+          "type": "stat",
+          "title": "Last VM backup",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 16,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(time() - pve_vzdump_last_success_timestamp_seconds) / 3600",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "h",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 26
+                  },
+                  {
+                    "color": "red",
+                    "value": 36
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 12,
+          "type": "stat",
+          "title": "Last etcd snapshot",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 20,
+            "y": 4
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "(time() - etcd_snapshot_last_success_timestamp_seconds) / 3600",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "h",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 26
+                  },
+                  {
+                    "color": "red",
+                    "value": 36
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 13,
+          "type": "stat",
+          "title": "Traefik req/s",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 0,
+            "y": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(rate(traefik_router_requests_total[5m]))",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "reqps",
+              "decimals": 2,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 14,
+          "type": "stat",
+          "title": "Traefik 5xx",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "100 * sum(rate(traefik_router_requests_total{code=~\"5..\"}[5m])) / clamp_min(sum(rate(traefik_router_requests_total[5m])), 1)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "decimals": 2,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 1
+                  },
+                  {
+                    "color": "red",
+                    "value": 5
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 15,
+          "type": "stat",
+          "title": "p95 latency",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
+            "y": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "histogram_quantile(0.95, sum by (le) (rate(traefik_router_request_duration_seconds_bucket[5m])))",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "s",
+              "decimals": 3,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 16,
+          "type": "stat",
+          "title": "Cloudflare tunnel",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 12,
+            "y": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(cloudflared_tunnel_ha_connections)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "green",
+                    "value": 1
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 17,
+          "type": "stat",
+          "title": "Cert expiry",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 16,
+            "y": 8
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "min(certmanager_certificate_expiration_timestamp_seconds - time()) / 86400",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "d",
+              "decimals": 0,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "red",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 14
+                  },
+                  {
+                    "color": "green",
+                    "value": 30
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 18,
+          "type": "stat",
+          "title": "Log errors/min",
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 20,
+            "y": 8
+          },
+          "datasource": {
+            "type": "loki",
+            "uid": "loki"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "sum(count_over_time({namespace=~\".+\"} |~ \"(?i)error|fail|panic\" [5m])) / 5",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 1,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 5
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 19,
+          "type": "table",
+          "title": "Probes",
+          "gridPos": {
+            "h": 8,
+            "w": 24,
+            "x": 0,
+            "y": 12
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "probe_success",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "namespace": true,
+                  "service": true,
+                  "pod": true
+                },
+                "renameByName": {
+                  "instance": "target",
+                  "alertname": "alert",
+                  "severity": "severity"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm"
+          }
+        },
+        {
+          "id": 20,
+          "type": "bargauge",
+          "title": "QNAP volume used",
+          "gridPos": {
+            "h": 8,
+            "w": 8,
+            "x": 0,
+            "y": 20
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "100 * (volumeCapacity - volumeFreeSize) / volumeCapacity",
+              "legendFormat": "{{volumeName}}",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percent",
+              "max": 100,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "id": 21,
+          "type": "stat",
+          "title": "QNAP RAID",
+          "gridPos": {
+            "h": 8,
+            "w": 4,
+            "x": 8,
+            "y": 20
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "max(raidStatus{raidStatus!=\"Ready\"}) or vector(0)",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none",
+              "decimals": 0,
+              "color": {
+                "mode": "thresholds"
+              },
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "red",
+                    "value": 1
+                  }
+                ]
+              },
+              "mappings": [
+                {
+                  "type": "value",
+                  "options": {
+                    "0": {
+                      "text": "Ready",
+                      "color": "green",
+                      "index": 0
+                    },
+                    "1": {
+                      "text": "DEGRADED",
+                      "color": "red",
+                      "index": 1
+                    }
+                  }
+                }
+              ]
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": "",
+              "values": false
+            },
+            "colorMode": "background",
+            "graphMode": "none",
+            "textMode": "auto",
+            "justifyMode": "auto",
+            "orientation": "auto"
+          }
+        },
+        {
+          "id": 22,
+          "type": "bargauge",
+          "title": "QNAP disk temps",
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 12,
+            "y": 20
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "diskTemperature",
+              "legendFormat": "{{diskIndex}}",
+              "instant": true,
+              "range": false
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "celsius",
+              "max": 60,
+              "min": 0,
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {
+                    "color": "green",
+                    "value": null
+                  },
+                  {
+                    "color": "orange",
+                    "value": 80
+                  },
+                  {
+                    "color": "red",
+                    "value": 90
+                  }
+                ]
+              }
+            },
+            "overrides": []
+          },
+          "options": {
+            "displayMode": "gradient",
+            "orientation": "horizontal",
+            "showUnfilled": true,
+            "reduceOptions": {
+              "calcs": [
+                "lastNotNull"
+              ]
+            }
+          }
+        },
+        {
+          "id": 23,
+          "type": "table",
+          "title": "Firing alerts",
+          "gridPos": {
+            "h": 8,
+            "w": 6,
+            "x": 18,
+            "y": 20
+          },
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "targets": [
+            {
+              "refId": "A",
+              "expr": "ALERTS{alertstate=\"firing\",alertname!=\"Watchdog\"}",
+              "instant": true,
+              "range": false,
+              "format": "table"
+            }
+          ],
+          "transformations": [
+            {
+              "id": "organize",
+              "options": {
+                "excludeByName": {
+                  "Time": true,
+                  "__name__": true,
+                  "job": true,
+                  "instance": true
+                },
+                "renameByName": {
+                  "instance": "target",
+                  "alertname": "alert",
+                  "severity": "severity"
+                }
+              }
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {},
+            "overrides": []
+          },
+          "options": {
+            "showHeader": true,
+            "cellHeight": "sm"
+          }
+        }
+      ]
+    }
