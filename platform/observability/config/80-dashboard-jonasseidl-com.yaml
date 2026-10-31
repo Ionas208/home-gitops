@@ -1262,7 +1262,7 @@ data:
           "targets": [
             {
               "refId": "A",
-              "expr": "100 * (volumeCapacity - volumeFreeSize) / volumeCapacity",
+              "expr": "100 * (volumeCapacity - volumeFreeSize) / volumeCapacity\n  * on(volumeIndex, instance, job) group_left(volumeName) volumeName",
               "legendFormat": "{{volumeName}}",
               "instant": true,
               "range": false
@@ -1399,7 +1399,7 @@ data:
             {
               "refId": "A",
               "expr": "diskTemperature",
-              "legendFormat": "{{diskIndex}}",
+              "legendFormat": "Disk {{diskIndex}}",
               "instant": true,
               "range": false
             }
