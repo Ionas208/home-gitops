@@ -1,0 +1,38 @@
+# Targets that have no Kubernetes Service to discover: the QNAP and the Proxmox
+# host itself. Both are scraped through the node's address.
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: snmp-qnap
+  namespace: monitoring
+spec:
+  jobName: snmp-qnap
+  # Gentle: RAID and disk status do not change by the second, and a v3 walk of
+  # the QTS storage subtree is real work for a 4-core ARM NAS.
+  scrapeInterval: 120s
+  metricsPath: /snmp
+  params:
+    module: [qnap]
+  staticConfigs:
+    - targets:
+        - 192.168.178.254
+  relabelings:
+    - sourceLabels: [__address__]
+      targetLabel: __param_target
+    - sourceLabels: [__param_target]
+      targetLabel: instance
+    - targetLabel: __address__
+      replacement: snmp-exporter.monitoring.svc.cluster.local:9115
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: proxmox-host
+  namespace: monitoring
+spec:
+  jobName: proxmox-host
+  scrapeInterval: 60s
+  metricsPath: /metrics
+  staticConfigs:
+    - targets:
+        - 192.168.178.249:9100

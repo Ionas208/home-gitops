@@ -1,0 +1,164 @@
+# Prometheus, Alertmanager, Grafana, kube-state-metrics, node-exporter and the
+# operator, pinned together so their CRDs and versions cannot drift apart.
+
+prometheus:
+  prometheusSpec:
+    retention: 14d
+    # A size cap matters more than time: it stops a scrape explosion from
+    # filling the volume and taking the node's disk with it.
+    retentionSize: 6GB
+    scrapeInterval: 60s
+    evaluationInterval: 60s
+    resources:
+      requests:
+        cpu: 300m
+        memory: 1Gi
+      limits:
+        memory: 2Gi
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 10Gi
+    # Scrape every ServiceMonitor/PodMonitor/Probe in the cluster, not only the
+    # ones labelled for this Helm release.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    probeSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+
+alertmanager:
+  alertmanagerSpec:
+    resources:
+      requests:
+        cpu: 20m
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+    storage:
+      volumeClaimTemplate:
+        spec:
+          storageClassName: local-path
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+    # Mounts at /etc/alertmanager/secrets/alertmanager-discord/
+    secrets:
+      - alertmanager-discord
+  config:
+    global:
+      resolve_timeout: 5m
+    route:
+      receiver: discord
+      group_by: [alertname, namespace]
+      group_wait: 30s
+      group_interval: 5m
+      # Nag about an ongoing problem, but only four times a day.
+      repeat_interval: 4h
+    inhibit_rules:
+      # A dead node already explains every pod warning on it.
+      - source_matchers:
+          - 'alertname="KubeNodeNotReady"'
+        target_matchers:
+          - 'severity=~"warning|info"'
+        equal: [node]
+    receivers:
+      # The chart injects a Watchdog route that points at a "null" receiver.
+      - name: "null"
+      - name: discord
+        discord_configs:
+          - webhook_url_file: /etc/alertmanager/secrets/alertmanager-discord/webhook
+            send_resolved: true
+
+grafana:
+  admin:
+    existingSecret: grafana-admin
+    userKey: admin-user
+    passwordKey: admin-password
+  grafana.ini:
+    server:
+      domain: grafana.home.jonasseidl.com
+      root_url: https://grafana.home.jonasseidl.com
+    analytics:
+      reporting_enabled: false
+      check_for_updates: false
+  persistence:
+    enabled: false
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      access: proxy
+      url: http://loki.logging.svc.cluster.local:3100
+  sidecar:
+    dashboards:
+      enabled: true
+      searchNamespace: ALL
+
+# No kube-proxy on Talos.
+kubeProxy:
+  enabled: false
+
+# Talos binds these to loopback by default. The machine config exposes them on
+# 192.168.178.239, which is why the endpoints are explicit.
+kubeEtcd:
+  enabled: true
+  endpoints: ["192.168.178.239"]
+  service:
+    port: 2381
+    targetPort: 2381
+  serviceMonitor:
+    scheme: http
+
+kubeControllerManager:
+  enabled: true
+  endpoints: ["192.168.178.239"]
+  service:
+    port: 10257
+    targetPort: 10257
+  serviceMonitor:
+    scheme: https
+    insecureSkipVerify: true
+
+kubeScheduler:
+  enabled: true
+  endpoints: ["192.168.178.239"]
+  service:
+    port: 10259
+    targetPort: 10259
+  serviceMonitor:
+    scheme: https
+    insecureSkipVerify: true
+
+prometheusOperator:
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      memory: 256Mi
+
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 64Mi
+    limits:
+      memory: 192Mi
+
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: 20m
+      memory: 32Mi
+    limits:
+      memory: 64Mi

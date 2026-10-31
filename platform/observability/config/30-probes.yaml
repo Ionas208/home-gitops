@@ -1,0 +1,69 @@
+# Blackbox probes. External URLs catch ingress breakage; LAN probes catch host
+# and NAS loss independently of their exporters.
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: public-http
+  namespace: monitoring
+spec:
+  jobName: blackbox-public
+  interval: 60s
+  module: http_2xx
+  prober:
+    url: blackbox-exporter.monitoring.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        - https://jonasseidl.com
+        - https://argocd.home.jonasseidl.com
+        - https://grafana.home.jonasseidl.com
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: alertmanager-http
+  namespace: monitoring
+spec:
+  jobName: blackbox-alertmanager
+  interval: 60s
+  module: http_auth_required
+  prober:
+    url: blackbox-exporter.monitoring.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        - https://alertmanager.home.jonasseidl.com
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: lan-icmp
+  namespace: monitoring
+spec:
+  jobName: blackbox-lan-icmp
+  interval: 60s
+  module: icmp
+  prober:
+    url: blackbox-exporter.monitoring.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        # Proxmox host and QNAP. SNMP failing is not the same as the NAS being down.
+        - 192.168.178.249
+        - 192.168.178.254
+---
+apiVersion: monitoring.coreos.com/v1
+kind: Probe
+metadata:
+  name: nas-nfs
+  namespace: monitoring
+spec:
+  jobName: blackbox-nas-nfs
+  interval: 120s
+  module: tcp_connect
+  prober:
+    url: blackbox-exporter.monitoring.svc.cluster.local:9115
+  targets:
+    staticConfig:
+      static:
+        - 192.168.178.254:2049

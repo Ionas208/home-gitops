@@ -1,0 +1,50 @@
+fullnameOverride: blackbox-exporter
+
+config:
+  modules:
+    http_2xx:
+      prober: http
+      timeout: 5s
+      http:
+        preferred_ip_protocol: ip4
+        follow_redirects: true
+    # Alertmanager sits behind basic auth, so a 401 proves Traefik and the
+    # backend are reachable.
+    http_auth_required:
+      prober: http
+      timeout: 5s
+      http:
+        preferred_ip_protocol: ip4
+        follow_redirects: true
+        valid_status_codes: [401]
+    icmp:
+      prober: icmp
+      timeout: 5s
+      icmp:
+        preferred_ip_protocol: ip4
+    tcp_connect:
+      prober: tcp
+      timeout: 5s
+
+# Probes are created as Probe CRs, not scraped from this chart directly.
+serviceMonitor:
+  selfMonitor:
+    enabled: false
+
+# The ICMP module needs raw sockets. The chart drops all capabilities by default.
+securityContext:
+  runAsUser: 1000
+  runAsGroup: 1000
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  allowPrivilegeEscalation: false
+  capabilities:
+    drop: ["ALL"]
+    add: ["NET_RAW"]
+
+resources:
+  requests:
+    cpu: 20m
+    memory: 32Mi
+  limits:
+    memory: 64Mi

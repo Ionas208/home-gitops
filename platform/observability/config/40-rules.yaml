@@ -1,0 +1,182 @@
+# Alert rules. Every expression is 60s-scraped, so `for:` durations are at least
+# five minutes except where a reboot should be allowed to happen naturally.
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: platform-alerts
+  namespace: monitoring
+spec:
+  groups:
+    - name: node
+      rules:
+        - alert: KubeNodeNotReady
+          expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Node {{ $labels.node }} is NotReady"
+
+        - alert: KubeletDown
+          expr: up{job="kubelet"} == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "kubelet is not being scraped"
+
+        - alert: NodeFilesystemFillingUp
+          expr: |
+            node_filesystem_avail_bytes{fstype!~"tmpfs|overlay|squashfs",mountpoint!~"/var/lib/.*"}
+              / node_filesystem_size_bytes < 0.15
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.mountpoint }} on {{ $labels.instance }} is above 85% used"
+
+    - name: storage
+      rules:
+        - alert: PersistentVolumeFillingUp
+          expr: |
+            kubelet_volume_stats_available_bytes
+              / kubelet_volume_stats_capacity_bytes < 0.15
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PVC {{ $labels.persistentvolumeclaim }} is above 85% used"
+
+        - alert: PersistentVolumeErrors
+          expr: kube_persistentvolume_status_phase{phase=~"Failed|Pending"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "PV {{ $labels.persistentvolume }} is {{ $labels.phase }}"
+
+    - name: control-plane
+      rules:
+        - alert: EtcdNoLeader
+          expr: etcd_server_has_leader == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "etcd has no leader"
+
+        - alert: KubeSchedulerDown
+          expr: up{job="kube-scheduler"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "kube-scheduler is not being scraped"
+
+        - alert: KubeControllerManagerDown
+          expr: up{job="kube-controller-manager"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "kube-controller-manager is not being scraped"
+
+    - name: certificates
+      rules:
+        - alert: CertificateExpiringSoon
+          expr: |
+            certmanager_certificate_expiration_timestamp_seconds - time()
+              < 14 * 24 * 3600
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.name }} expires in under 14 days"
+
+        - alert: CertificateNotReady
+          expr: certmanager_certificate_ready_status{condition="False"} == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Certificate {{ $labels.name }} is not Ready"
+
+    - name: external-secrets
+      rules:
+        - alert: ExternalSecretNotReady
+          expr: externalsecret_status_condition{condition="Ready",status="True"} == 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "ExternalSecret {{ $labels.namespace }}/{{ $labels.name }} is not Ready"
+
+    - name: ingress
+      rules:
+        - alert: CloudflaredTunnelDown
+          expr: cloudflared_tunnel_ha_connections == 0
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "cloudflared has no connections to the Cloudflare edge"
+
+        - alert: ProbeFailing
+          expr: probe_success == 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $labels.instance }} is failing its {{ $labels.job }} probe"
+
+    - name: proxmox
+      rules:
+        - alert: ProxmoxRebootRequired
+          expr: node_reboot_required == 1
+          for: 1h
+          labels:
+            severity: warning
+          annotations:
+            summary: "Proxmox needs a reboot for a kernel or library update"
+            description: Do not reboot automatically; the cluster runs on this host.
+
+        - alert: ProxmoxThinPoolFillingUp
+          expr: pve_thinpool_used_percent > 80
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Proxmox thin pool is above 80% used"
+
+    - name: nas
+      rules:
+        # SNMP scrape itself failing. The ICMP probe distinguishes this from the
+        # NAS actually being down.
+        - alert: QnapSnmpDown
+          expr: up{job="snmp-qnap"} == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "SNMP scraping of the QNAP is failing"
+
+        # The QTS-MIB status fields are strings; the exact values are confirmed
+        # against a live walk before this is trusted.
+        - alert: QnapRaidDegraded
+          expr: |
+            snmp_raidStatus_info{raidStatus!="Ready"} == 1
+              and on(instance) up{job="snmp-qnap"} == 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "QNAP RAID {{ $labels.raidStatus }}"
+
+        - alert: QnapVolumeFillingUp
+          expr: |
+            (snmp_volumeCapacity - snmp_volumeFreeSize) / snmp_volumeCapacity > 0.8
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "QNAP volume {{ $labels.volumeName }} is above 80% used"
