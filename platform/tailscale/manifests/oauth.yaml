@@ -3,6 +3,10 @@ kind: ExternalSecret
 metadata:
   name: tailscale-oauth
   namespace: tailscale
+  annotations:
+    # Apply before the operator Deployment. The operator mounts this Secret, so
+    # waiting for the Deployment to become healthy first would deadlock.
+    argocd.argoproj.io/sync-wave: "-1"
 spec:
   refreshInterval: 1h
   secretStoreRef:
