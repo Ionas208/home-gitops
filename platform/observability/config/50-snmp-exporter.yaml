@@ -131,8 +131,8 @@ data:
             indexes:
               - labelname: volumeIndex
                 type: gauge
-        auth:
-          - qnap_v3
+    # Auth is selected at scrape time via the `auth` parameter, not inside a
+    # module (snmp_exporter >= 0.23 format).
 ---
 apiVersion: apps/v1
 kind: Deployment

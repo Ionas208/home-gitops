@@ -3,6 +3,14 @@
 
 prometheus:
   prometheusSpec:
+    # The Prometheus CR mounts the PVC with subPath=prometheus-db. Kubelet
+    # creates that directory as root 0755, and hostPath-backed local-path
+    # volumes get no fsGroup ownership handling, so the default non-root user
+    # cannot write /prometheus/queries.active. Run as root on this single-node
+    # homelab rather than adding an init container the operator may not wire up.
+    securityContext:
+      runAsNonRoot: false
+      runAsUser: 0
     retention: 14d
     # A size cap matters more than time: it stops a scrape explosion from
     # filling the volume and taking the node's disk with it.

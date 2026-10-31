@@ -139,5 +139,5 @@ modules:
         indexes:
           - labelname: volumeIndex
             type: gauge
-    auth:
-      - qnap_v3
+    # Note: the generated snmp.yml carries no per-module auth. Prometheus selects
+    # it with the `auth` parameter on the /snmp scrape.
