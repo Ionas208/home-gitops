@@ -304,6 +304,7 @@ admin access, or a failed rebuild. The offsite copy is mandatory.
 | Cloudflare tunnel down | Public services unavailable                           | Restart cloudflared; internal access unaffected |
 | Argo CD down           | No reconciliation; workloads keep running             | Bootstrap/recovery runbook                      |
 | Certificate expiry     | Internal TLS breaks                                   | cert-manager; manual reissue                    |
+| Pending host reboot    | Old kernel/PVE packages keep running                  | Alert, then schedule a reboot window            |
 
 ## 10. Public exposure rules
 

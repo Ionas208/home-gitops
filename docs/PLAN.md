@@ -295,4 +295,5 @@ write it down and defer it.
 - Confirm QNAP snapshot volume type and offsite target.
 - Add UPS and graceful shutdown.
 - Decide whether to add a 2.5GbE NIC to Proxmox for QNAP throughput.
-- Add observability and alerting after the cluster is stable.
+- Add observability and alerting after the cluster is stable, including a
+  pending-reboot alert for the Proxmox host (`/var/run/reboot-required`).

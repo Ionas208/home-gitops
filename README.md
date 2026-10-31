@@ -32,6 +32,16 @@ External Secrets Operator.
 - [`docs/decisions/`](docs/decisions/) — architecture decision records
 - [`docs/runbooks/`](docs/runbooks/) — bootstrap, upgrade, restore, and add-app runbooks
 
+## Alerting
+
+Grafana/alerting is planned for later. When it is set up, do not forget a
+**pending reboot** alert for the Proxmox host: notify when
+`/var/run/reboot-required` exists after unattended updates. The host is outside
+Kubernetes, so this needs a host-side metric/check, not just a cluster scrape.
+
+Do not auto-reboot the host: the single node runs the control plane and every
+workload.
+
 ## Structure
 
 ```text
