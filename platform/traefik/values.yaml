@@ -13,6 +13,21 @@ providers:
 ingressClass:
   enabled: false
 
+# Prometheus metrics for request rate, status codes and latency per router.
+metrics:
+  addInternals: false
+  prometheus:
+    addEntryPointsLabels: true
+    addRoutersLabels: true
+    addServicesLabels: true
+    # The chart aborts rendering when it cannot find the Prometheus CRDs in the
+    # target cluster; Argo renders offline, so skip that check.
+    disableAPICheck: true
+    service:
+      enabled: true
+    serviceMonitor:
+      enabled: true
+
 gatewayClass:
   enabled: true
   name: traefik

@@ -1,0 +1,14 @@
+# cloudflared already serves Prometheus metrics on :2000/metrics; it just had no
+# collector. A PodMonitor keeps it independent of the Deployment definition.
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: cloudflared
+  namespace: cloudflared
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: cloudflared
+  podMetricsEndpoints:
+    - port: metrics
+      interval: 60s

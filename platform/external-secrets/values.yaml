@@ -7,3 +7,7 @@ installCRDs: true
 # in the cert-manager-ca Application.
 bitwarden-sdk-server:
   enabled: true
+
+# Sync status per ExternalSecret, used by the ExternalSecretNotReady alert.
+serviceMonitor:
+  enabled: true

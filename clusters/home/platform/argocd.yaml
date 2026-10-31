@@ -19,6 +19,28 @@ spec:
             # TLS terminates at Traefik on the websecure listener, so the
             # server speaks plain HTTP to the Gateway backend.
             server.insecure: "true"
+        # Expose metrics for Prometheus; the operator scrapes every
+        # ServiceMonitor in the cluster.
+        controller:
+          metrics:
+            enabled: true
+            serviceMonitor:
+              enabled: true
+        server:
+          metrics:
+            enabled: true
+            serviceMonitor:
+              enabled: true
+        repoServer:
+          metrics:
+            enabled: true
+            serviceMonitor:
+              enabled: true
+        applicationSet:
+          metrics:
+            enabled: true
+            serviceMonitor:
+              enabled: true
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
