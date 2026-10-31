@@ -15,7 +15,7 @@ Bootstrap secrets must also be recoverable.
 - External Secrets Operator (ESO) runs in-cluster with the Bitwarden provider.
 - A `ClusterSecretStore` named `bitwarden` is shared by workloads.
 - The BSM machine-account token is the one manual bootstrap Secret:
-  `external-secrets/bws-access-token`, key `token`.
+  `external-secrets/bitwarden-access-token`, key `accessToken`.
 - Cloudflare, Tailscale, and application secrets are synced by ESO.
 - Talos secrets and kubeconfigs stay out of Git and are backed up outside the repositories.
 - Argo CD does not need repository credentials because `home-gitops` is public.

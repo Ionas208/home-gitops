@@ -255,7 +255,7 @@ External Secrets Operator (ClusterSecretStore: bitwarden)
 ```
 
 The only manual bootstrap secret is the BSM machine-account token:
-`external-secrets/bws-access-token`, key `token`.
+`external-secrets/bitwarden-access-token`, key `accessToken`.
 
 Because `home-gitops` is public, Argo CD does not need repository credentials.
 No secret values are stored in Git.

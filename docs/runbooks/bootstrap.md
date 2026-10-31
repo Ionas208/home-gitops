@@ -79,8 +79,8 @@ kubectl -n argocd get appprojects
 External Secrets Operator needs its Bitwarden machine-account token once:
 
 ```bash
-kubectl -n external-secrets create secret generic bws-access-token \
-  --from-literal=token='REPLACE_ME'
+kubectl -n external-secrets create secret generic bitwarden-access-token \
+  --from-literal=accessToken='REPLACE_ME'
 ```
 
 This is the only manual secret. Rotate it by updating the Secret and the BSM machine account.

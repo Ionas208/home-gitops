@@ -43,7 +43,7 @@ recreates AppProjects and child Applications from Git.
 The BSM bootstrap Secret must exist for ESO to recover dependent secrets:
 
 ```bash
-kubectl -n external-secrets get secret bws-access-token
+kubectl -n external-secrets get secret bitwarden-access-token
 ```
 
 If it is missing, recreate it from BSM and let ESO resync.

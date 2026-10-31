@@ -53,8 +53,8 @@ export ARGOCD_CHART_VERSION=REPLACE_ME
 Then recreate the BSM bootstrap Secret if needed:
 
 ```bash
-kubectl -n external-secrets create secret generic bws-access-token \
-  --from-literal=token='REPLACE_ME'
+kubectl -n external-secrets create secret generic bitwarden-access-token \
+  --from-literal=accessToken='REPLACE_ME'
 ```
 
 Argo recreates the rest from Git.
