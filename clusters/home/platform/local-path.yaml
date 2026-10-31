@@ -1,0 +1,39 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: local-path
+  namespace: argocd
+  annotations:
+    # Storage classes must exist before any workload claims a volume.
+    argocd.argoproj.io/sync-wave: "-3"
+spec:
+  project: default
+  sources:
+    # The Rancher chart is served from the Git repository, not a Helm repo.
+    - repoURL: https://github.com/rancher/local-path-provisioner.git
+      targetRevision: v0.0.37
+      path: deploy/chart/local-path-provisioner
+      helm:
+        releaseName: local-path-provisioner
+        valueFiles:
+          - $values/platform/local-path/values.yaml
+    - repoURL: https://github.com/Ionas208/home-gitops.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: local-path-storage
+  syncPolicy:
+    # The helper pod mounts a hostPath to create the volume directory. Talos
+    # enforces the baseline PodSecurity profile cluster-wide, and baseline
+    # forbids hostPath, so this namespace has to opt out.
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/warn: privileged
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

@@ -1,0 +1,38 @@
+# local-path is the default StorageClass: small, hot, node-bound volumes. Data
+# lives on the node's EPHEMERAL partition, so it is lost if the VM is rebuilt.
+image:
+  tag: v0.0.37
+
+# The chart defaults the helper image to :latest. Pin it.
+helperImage:
+  repository: docker.io/library/busybox
+  tag: "1.38.0"
+
+storageClass:
+  create: true
+  name: local-path
+  defaultClass: true
+  reclaimPolicy: Delete
+  volumeBindingMode: WaitForFirstConsumer
+
+# /var is on the Talos EPHEMERAL partition, which survives upgrades. The chart
+# default (/opt) is also writable, but /var is the documented data path.
+nodePathMap:
+  - node: DEFAULT_PATH_FOR_NON_LISTED_NODES
+    paths:
+      - /var/local-path-provisioner
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+helperPod:
+  resources:
+    requests:
+      cpu: 10m
+      memory: 16Mi
+    limits:
+      memory: 64Mi

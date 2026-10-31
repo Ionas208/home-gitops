@@ -1,0 +1,38 @@
+# NFS storage for data that must be shared across pods, backed by the QNAP.
+#
+# Prometheus and Loki deliberately stay on local-path: neither supports a
+# network filesystem, and loki's filesystem store is single-writer.
+controller:
+  # No volume snapshots. The QNAP snapshots the k8s volume itself.
+  enableSnapshotter: false
+  resources:
+    nfs:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 128Mi
+
+storageClass:
+  create: true
+  name: nfs-qnap
+  # Retain so a deleted PVC never deletes the data on the NAS.
+  reclaimPolicy: Retain
+  volumeBindingMode: Immediate
+  parameters:
+    server: 192.168.178.254
+    share: /k8s
+  mountOptions:
+    - nfsvers=4.1
+    - hard
+    - timeo=600
+    - retrans=2
+
+node:
+  resources:
+    nfs:
+      requests:
+        cpu: 10m
+        memory: 32Mi
+      limits:
+        memory: 128Mi

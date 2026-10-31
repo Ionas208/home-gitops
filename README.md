@@ -8,7 +8,7 @@ External Secrets Operator.
 
 ## Status
 
-**Phase 2 in progress: MetalLB, Gateway-routed Traefik, TLS and External Secrets are running.**
+**Phase 2: platform services and storage are running.**
 
 - `bootstrap/argocd/install.sh` installs the pinned `argo-cd` chart and applies the root Application
 - `bootstrap/root-app.yaml` points at `clusters/home/` and is applied once
@@ -20,8 +20,9 @@ External Secrets Operator.
 - cloudflared connects out to the Cloudflare tunnel; no inbound ports are open
 - `jonasseidl.com` serves the portfolio landing page from its own nginx, never through Traefik
 - Tailscale operator with a two-replica LAN subnet router and the API server proxy
+- `local-path` is the default StorageClass; `nfs-qnap` serves the QNAP share `192.168.178.254:/k8s` for shared data
 - Argo UI: `https://argocd.home.jonasseidl.com`
-- Still missing: QNAP storage
+- Still missing: observability, offsite backups, restore test
 
 ## Documentation
 
