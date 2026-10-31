@@ -21,8 +21,12 @@ External Secrets Operator.
 - `jonasseidl.com` serves the portfolio landing page from its own nginx, never through Traefik
 - Tailscale operator with a two-replica LAN subnet router and the API server proxy
 - `local-path` is the default StorageClass; `nfs-qnap` serves the QNAP share `192.168.178.254:/k8s` for shared data
+- Prometheus (14d), Loki (7d), Alloy log shipping and Grafana in `monitoring`/`logging`
+- Alertmanager posts to Discord; control-plane, node, Proxmox and QNAP metrics are scraped
 - Argo UI: `https://argocd.home.jonasseidl.com`
-- Still missing: observability, offsite backups, restore test
+- Grafana: `https://grafana.home.jonasseidl.com`
+- Alertmanager: `https://alertmanager.home.jonasseidl.com` (basic auth)
+- Still missing: offsite backups, restore test, UPS
 
 ## Documentation
 
