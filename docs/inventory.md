@@ -1,6 +1,9 @@
 # Inventory
 
-> Status: Phase 0 inventory. Hardware is current; cluster sizing and versions are targets.
+> Status: historical Phase 0 inventory. The as-built hardware, network and
+> cluster inventory lives in [`home-infra/docs/`](https://github.com/Ionas208/home-infra/tree/main/docs)
+> (`inventory.md`, `network.md`, `proxmox-host.md`). Hardware, sizing, addresses
+> and versions below are Phase 0 targets, not the running cluster.
 
 ## Hardware
 
